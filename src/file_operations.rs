@@ -144,6 +144,9 @@ pub fn delete_task(filepath: &str, task_number_to_delete: u32) -> Result<(), Err
 }
 
 pub fn delete_task_interaction(filepath: &str) -> io::Result<()> {
+    if let Err(e) = read_from_file(filepath) {
+        println!("An error occurred while reading from the file: {}", e);
+    }
     println!("Enter the number of the task you want to delete:");
 
     let mut input = String::new();
