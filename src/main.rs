@@ -37,9 +37,13 @@ fn main() {
                 Ok(_) => println!("Task deleted successfully."),
                 Err(e) => println!("An error occurred while deleting the task: {}", e),
             },
-
-            4 => break,
-            _ => println!("Invalid input. Please enter a number between 1 and 3."),
+            4 => {
+                //TODO: Sort the tasks by date, oh god I need to format the dates...
+                println!("Exiting...");
+                break;
+            }
+            5 => break,
+            _ => println!("Invalid input. Please enter a number between 1 and 5."),
         }
     }
 }
