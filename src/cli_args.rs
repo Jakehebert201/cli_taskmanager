@@ -4,7 +4,7 @@ use std::path::Path;
 
 pub fn cli_args(args: &Option<String>) -> String {
     // Determine the filename: use the provided argument or a default value
-    let filename = args.as_ref().unwrap_or(&"default.txt".to_string()).clone();
+    let filename = args.as_ref().unwrap_or(&"default.csv".to_string()).clone();
     let path = Path::new(&filename);
     let display = path.display();
 
@@ -18,11 +18,6 @@ pub fn cli_args(args: &Option<String>) -> String {
             Err(why) => panic!("couldn't create {}: {}", display, why),
             Ok(file) => file,
         };
-        // Example: Write some default content to the file
-        match file.write_all(b"Hello, world!") {
-            Err(why) => panic!("couldn't write to {}: {}", display, why),
-            Ok(_) => println!("Successfully wrote to {}", display),
-        }
     }
 
     // Return the determined filename
