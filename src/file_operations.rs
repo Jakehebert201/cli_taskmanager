@@ -59,13 +59,19 @@ pub fn get_csv(filepath: &str) {
 
     // If the file is new or empty, write the header
     if file_is_empty {
-        let header = "Task,Description,Due Date\n";
+        let header = "Task Number,Task,Description,Due Date\n";
         file.write_all(header.as_bytes())
             .expect("Failed to write header to file");
     }
-
-    // The rest of your function remains the same
     let mut contents = Vec::new();
+    //read first field to get the number of tasks, then increment by 1
+    let csv_contents = fs::read_to_string(filepath).expect("Something went wrong reading the file");
+    let mut task_count = 0;
+    for line in csv_contents.lines() {
+        task_count += 1;
+    }
+    contents.push(task_count.to_string());
+
     println!("What task would you like to do?");
     let mut input = String::new();
     stdin().read_line(&mut input).expect("Failed to read line");
@@ -87,4 +93,19 @@ pub fn get_csv(filepath: &str) {
         .expect("Failed to write to file");
 
     println!("Successfully wrote to {}", filepath);
+}
+
+pub fn delete_task(filepath: &str) {
+    //Deletes a specific task from the file
+    println!("Filepath: {}", filepath);
+    let mut file = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(filepath)
+        .expect("Failed to open file for reading and writing");
+
+    println!("You are about to delete a task. Please enter the task by number you would like to delete: ");
+    //print the tasks
+    let contents = fs::read_to_string(filepath).expect("Something went wrong reading the file");
+    println!("{}", contents);
 }
