@@ -4,7 +4,10 @@ use std::path::Path;
 
 pub fn cli_args(args: &Option<String>) -> String {
     // Determine the filename: use the provided argument or a default value
-    let filename = args.as_ref().unwrap_or(&"default.csv".to_string()).clone();
+    let filename = args
+        .as_ref()
+        .unwrap_or(&"taskmanager.csv".to_string())
+        .clone();
     let path = Path::new(&filename);
     let display = path.display();
 
