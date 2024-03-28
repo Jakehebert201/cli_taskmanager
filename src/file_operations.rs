@@ -1,3 +1,5 @@
+use csv::Reader;
+use csv::{Error, ReaderBuilder, WriterBuilder};
 use std::fs::{self, File, Metadata, OpenOptions};
 use std::io::{self, stdin, Read, Write};
 use std::path::Path;
@@ -95,17 +97,74 @@ pub fn get_csv(filepath: &str) {
     println!("Successfully wrote to {}", filepath);
 }
 
-pub fn delete_task(filepath: &str) {
-    //Deletes a specific task from the file
-    println!("Filepath: {}", filepath);
-    let mut file = OpenOptions::new()
-        .read(true)
-        .write(true)
-        .open(filepath)
-        .expect("Failed to open file for reading and writing");
+pub fn delete_task(filepath: &str, task_number_to_delete: u32) -> Result<(), Error> {
+    let mut rdr = ReaderBuilder::new().from_path(filepath)?;
+    let records: Result<Vec<_>, _> = rdr.records().collect();
+    let mut records = records?;
 
-    println!("You are about to delete a task. Please enter the task by number you would like to delete: ");
-    //print the tasks
-    let contents = fs::read_to_string(filepath).expect("Something went wrong reading the file");
-    println!("{}", contents);
+    // Convert to a more manageable structure
+    let mut data: Vec<Vec<String>> = records
+        .iter()
+        .map(|r| r.iter().map(|s| s.to_string()).collect())
+        .collect();
+
+    // Filter and adjust task numbers
+    let mut found = false;
+    let mut data_filtered: Vec<Vec<String>> = Vec::new();
+    let mut current_num = 1;
+
+    for row in data.into_iter() {
+        if let Ok(num) = row[0].parse::<u32>() {
+            if num != task_number_to_delete {
+                let mut new_row = row;
+                new_row[0] = current_num.to_string(); // Assign the current task number
+                data_filtered.push(new_row);
+                current_num += 1;
+            } else {
+                found = true; // Skip the task to delete, but mark as found
+            }
+        } else {
+            // If the row doesn't start with a valid number, include it as is
+            data_filtered.push(row);
+        }
+    }
+
+    // Rewrite the CSV file with the updated records
+    if found {
+        let mut wtr = WriterBuilder::new().from_writer(File::create(filepath)?);
+        for record in data_filtered {
+            wtr.write_record(&record)?;
+        }
+        println!("Task {} deleted successfully.", task_number_to_delete);
+    } else {
+        println!("Task number {} not found.", task_number_to_delete);
+    }
+
+    Ok(())
 }
+
+pub fn delete_task_interaction(filepath: &str) -> io::Result<()> {
+    println!("Enter the number of the task you want to delete:");
+
+    let mut input = String::new();
+    io::stdin()
+        .read_line(&mut input)
+        .expect("Failed to read line");
+
+    let task_number: u32 = match input.trim().parse() {
+        Ok(num) => num,
+        Err(_) => {
+            println!("Please enter a valid number.");
+            return Ok(()); // Early return if invalid input
+        }
+    };
+
+    // Now call the delete_task function with the user-provided task number
+    if let Err(e) = delete_task(filepath, task_number) {
+        println!("An error occurred: {}", e);
+    }
+
+    Ok(())
+}
+
+// Ensure you have the `delete_task` function defined as shown previously or appropriately imported
