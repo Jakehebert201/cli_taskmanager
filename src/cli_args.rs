@@ -1,6 +1,7 @@
 use std::fs::{self, File};
 use std::io::prelude::*;
 use std::path::Path;
+use std::process::Command;
 
 pub fn cli_args(args: &Option<String>) -> String {
     // Determine the filename: use the provided argument or a default value
@@ -25,4 +26,12 @@ pub fn cli_args(args: &Option<String>) -> String {
 
     // Return the determined filename
     filename
+}
+
+pub fn clear_console() {
+    if cfg!(target_os = "windows") {
+        Command::new("cmd").args(&["/C", "cls"]).status().unwrap();
+    } else {
+        Command::new("clear").status().unwrap();
+    }
 }

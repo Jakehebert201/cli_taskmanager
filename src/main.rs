@@ -1,10 +1,11 @@
 mod cli_args;
 mod file_operations;
-use cli_args::cli_args;
+use cli_args::{clear_console, cli_args};
 use file_operations::{delete_task_interaction, get_csv, read_from_file};
 use std::env;
 
 fn main() {
+    clear_console();
     let args: Vec<String> = env::args().skip(1).collect();
     // This now directly uses the filename returned by cli_args
     let filename = cli_args(&args.get(0).cloned());
@@ -21,7 +22,7 @@ fn main() {
         let input: u32 = match input.trim().parse() {
             Ok(num) => num,
             Err(_) => {
-                println!("Invalid input. Please enter a number.");
+                println!("Invalid input. Please enter a number!");
                 continue;
             }
         };
